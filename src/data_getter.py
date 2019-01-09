@@ -36,3 +36,9 @@ class DataGetter(object):
         df[new_col_name] = talib.SMA(df[col_name], period)
         df = df.dropna()
         return df
+
+    def get_rsi(self, df, col_name, period):
+        new_col_name = col_name + "_RSI_" + str(period)
+        df[new_col_name] = talib.RSI(df[col_name], period)
+        df = df.dropna()
+        return df

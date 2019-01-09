@@ -53,6 +53,12 @@ class DataGetterTests(unittest.TestCase):
         df_with_ma = data_getter.get_ma(data, "close", 10)
         self.assertTrue("close_SMA_10" in df_with_ma.columns)
 
+    def test_get_rsi(self):
+        data = pd.read_excel("df_resampled.xlsx")
+        data_getter = DataGetter()
+        df_with_rsi = data_getter.get_rsi(data, "close", 14)
+        self.assertTrue("close_RSI_14" in df_with_rsi.columns)
+
 
 if __name__ == '__main__':
     unittest.main()
