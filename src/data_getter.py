@@ -134,11 +134,26 @@ class DataGetter(object):
 
         return df_result
 
-    def _get_columns_for_delta_calculation(self):
-        pass
+    def _get_columns_for_delta_calculation(self, column_names):
+        cols_for_delta_calc = []
+        for col_name in column_names:
+            if "target" in col_name or "datetime" in col_name:
+                continue
+            else:
+                cols_for_delta_calc.append(col_name)
+        return cols_for_delta_calc
 
     def get_deltas(self, df):
-        pass
+        df_columns = df.columns
+        cols_for_delta_calc = self._get_columns_for_delta_calculation(df_columns)
+
+        for col in cols_for_delta_calc:
+            for period in config.DELTA_PERIODS:
+                new_col_name = col + "_delta_" + str(period)
+                df[new_col_name] = df[col].shift(period)
+
+        df = df.dropna()
+        return df
 
     def standardize_and_normalize_df(self):
         pass

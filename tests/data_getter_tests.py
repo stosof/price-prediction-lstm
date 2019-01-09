@@ -65,23 +65,42 @@ class DataGetterTests(unittest.TestCase):
                                   "There was an issue creating the df_result with the data in this dir - {dir}".format(
                                       dir=currency_dir))
 
-    def test_get_targets_long_short(self):
+    def _get_df_with_indicators_single_currency(self):
         data_getter = DataGetter()
+        df_result = data_getter.get_df_with_indicators_single_currency("../data/eurusd/")
+        return df_result
 
-        df_result = pd.read_excel("df_with_indicators.xlsx")
-        for target in config.PIP_TARGETS:
-            df_result = data_getter.get_targets_long_short(df_result, target)
-            self.assertIsInstance(df_result, pd.DataFrame,
-                                  "There was an issue calculating the targets for this amount - {target}".format(
-                                      target=target))
+    def test_get_targets_long_short(self):
+        df_result = self.test_get_targets_long_short()
+        self.assertIsInstance(df_result, pd.DataFrame, "There was an issue calculating the targets.")
         df_result.to_excel("df_with_targets.xlsx")
 
-    def test_get_first_reached_targets(self):
+    def _get_targets_long_short(self):
         data_getter = DataGetter()
-        df_result = pd.read_excel("df_with_targets.xlsx")
-        df_result = data_getter.get_first_reached_targets(df_result)
-        df_result.to_excel("df_checked_targets.xlsx")
+        df_result = self._get_df_with_indicators_single_currency()
+        for target in config.PIP_TARGETS:
+            df_result = data_getter.get_targets_long_short(df_result, target)
+        return df_result
 
+    def test_get_first_reached_targets(self):
+        df_result = self._get_first_reached_targets()
+        self.assertIsInstance(df_result, pd.DataFrame, "There was an issue calculating the targets reached.")
+
+    def _get_first_reached_targets(self):
+        data_getter = DataGetter()
+        df_result = self._get_targets_long_short()
+        df_result = data_getter.get_first_reached_targets(df_result)
+        return df_result
+
+    def test_get_deltas(self):
+        df_result = self._get_deltas()
+        df_result.to_excel("df_deltas.xlsx")
+
+    def _get_deltas(self):
+        data_getter = DataGetter()
+        df_result = self._get_first_reached_targets()
+        df_result = data_getter.get_deltas(df_result)
+        return df_result
 
 
 if __name__ == '__main__':
