@@ -14,7 +14,7 @@ class DataGetterTests(unittest.TestCase):
     def test_get_df_base(self):
         data_getter = DataGetter()
         df_base = data_getter.get_df_base("1/1/2017", "1/1/2018", "min")
-        self.assertIsNotNone(df_base)
+        self.assertIsInstance(df_base, pd.DataFrame, "There was an issue creating df_base.")
 
     def test_get_single_currency_raw_data_from_excel(self):
         data_getter = DataGetter()
@@ -23,7 +23,7 @@ class DataGetterTests(unittest.TestCase):
             for file in files_in_dir:
                 filepath = os.path.join(dir, file)
                 df_import = data_getter.get_single_currency_raw_data_from_excel(filepath)
-                self.assertIsInstance(df_import, pd.DataFrame, "The file - {} - could not be read as a pandas dataframe.".format(filepath))
+                self.assertIsInstance(df_import, pd.DataFrame, "There was an issue creating a dataframe from the file - {}.".format(filepath))
 
     def test_get_single_currency_raw_data_with_base(self):
         data_getter = DataGetter()
@@ -34,7 +34,18 @@ class DataGetterTests(unittest.TestCase):
                 df_base_raw = data_getter.get_single_currency_raw_data_with_base(config.TRAINING_START_DATE,
                                                                                  config.TRAINING_END_DATE, "min",
                                                                                  filepath, dir)
-                self.assertIsInstance(df_base_raw, pd.DataFrame, "There was an issue creating df_base_raw: filepath - {filepath}, dir - {dir}.".format(filepath, dir))
+                self.assertIsInstance(df_base_raw, pd.DataFrame, "There was an issue creating df_base_raw: filepath - {filepath}, dir - {dir}.".format(filepath=filepath, dir=dir))
+
+    def test_tf_resampled_single_currency_raw_data_with_base(self):
+        data_getter = DataGetter()
+        for dir in config.get_currency_dir_paths():
+            files_in_dir = [f for f in os.listdir(dir) if os.path.isfile(os.path.join(dir, f))]
+            for file in files_in_dir:
+                filepath = os.path.join(dir, file)
+                df_resampled = data_getter.get_tf_resampled_single_currency_raw_data_with_base(config.TRAINING_START_DATE,
+                                                                                               config.TRAINING_END_DATE,
+                                                                                               "min", filepath, dir, 15)
+                self.assertIsInstance(df_resampled, pd.DataFrame, "There was an issue creating df_resampled: filepath - {filepath}, dir - {dir}.".format(filepath=filepath, dir=dir))
 
 if __name__ == '__main__':
     unittest.main()

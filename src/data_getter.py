@@ -4,6 +4,7 @@ We set the datetime as the index of the DF to allow for easier timeseries operat
 """
 
 import pandas as pd
+import tf_resampler
 
 class DataGetter(object):
 
@@ -23,5 +24,8 @@ class DataGetter(object):
         raw_data = self.get_single_currency_raw_data_from_excel(excel_file_path)
         return df_base.join(raw_data, rsuffix=suffix) # Join on index of DF
 
-    def get_tf_resampled_single_currency_raw_data_with_base(self):
-        pass
+    def get_tf_resampled_single_currency_raw_data_with_base(self, start_date, end_date, interval, excel_file_path,
+                                                            suffix, tf):
+        df_raw_base = self.get_single_currency_raw_data_with_base(start_date, end_date, interval, excel_file_path, suffix)
+        df_resample = tf_resampler.resample(df_raw_base, tf)
+        return df_resample
