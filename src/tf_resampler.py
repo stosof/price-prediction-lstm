@@ -1,4 +1,5 @@
 import pandas as pd
+import config
 
 
 # This mapping needs to be updated for the different TFs we want to support.
@@ -11,7 +12,7 @@ def get_datetime_delta(new_datetime, new_tf, m1_datetimes):
     if new_tf == 15:
         return new_datetime + pd.Timedelta("15min")
 
-def resample(m1_data, new_tf):
+def resample(m1_data):
     m1_arr = m1_data.values
     m1_datetimes = m1_data.index
     new_open = 0
@@ -22,15 +23,15 @@ def resample(m1_data, new_tf):
     counter = 1
     resampled_data = []
     for pos, row in enumerate(m1_arr):
-        if counter == new_tf:
+        if counter == config.RESAMPLE_TF:
             new_close = row[3]
-        if counter > new_tf:
+        if counter > config.RESAMPLE_TF:
             counter = 1
             resampled_data.append([new_datetime, new_open, new_high, new_low, new_close])
             new_high = 0
             new_low = 1000000
         if counter == 1:
-            new_datetime = get_datetime_delta(new_datetime, new_tf, m1_datetimes)
+            new_datetime = get_datetime_delta(new_datetime, config.RESAMPLE_TF, m1_datetimes)
             new_open = row[0]
         if row[1] > new_high:
             new_high = row[1]

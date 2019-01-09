@@ -37,7 +37,7 @@ class DataGetterTests(unittest.TestCase):
         for currency_dir in config.get_currency_dir_paths():
             df_resampled = data_getter.get_tf_resampled_single_currency_raw_data_with_base(config.TRAINING_START_DATE,
                                                                                            config.TRAINING_END_DATE,
-                                                                                           currency_dir, 15)
+                                                                                           currency_dir)
             # df_resampled.to_excel("df_resampled.xlsx")
             # exit()
             self.assertIsInstance(df_resampled, pd.DataFrame,

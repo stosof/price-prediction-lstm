@@ -36,18 +36,20 @@ class DataGetter(object):
         raw_data = self.get_single_currency_raw_data_from_all_excel_files(currency_dir)
         return df_base.join(raw_data, rsuffix=currency_dir)  # Join on index of DF
 
-    def get_tf_resampled_single_currency_raw_data_with_base(self, start_date, end_date, currency_dir, tf):
+    def get_tf_resampled_single_currency_raw_data_with_base(self, start_date, end_date, currency_dir):
         df_raw_base = self.get_single_currency_raw_data_with_base(start_date, end_date, currency_dir)
-        df_resample = tf_resampler.resample(df_raw_base, tf)
+        df_resample = tf_resampler.resample(df_raw_base)
         return df_resample
 
-    def get_ma(self, df, col_name, period):
+    @staticmethod
+    def get_ma(df, col_name, period):
         new_col_name = col_name + "_SMA_" + str(period)
         df[new_col_name] = talib.SMA(df[col_name], period)
         df = df.dropna()
         return df
 
-    def get_rsi(self, df, col_name, period):
+    @staticmethod
+    def get_rsi(df, col_name, period):
         new_col_name = col_name + "_RSI_" + str(period)
         df[new_col_name] = talib.RSI(df[col_name], period)
         df = df.dropna()
@@ -55,7 +57,7 @@ class DataGetter(object):
 
     def get_df_with_indicators_single_currency(self, currency_dir):
         df_result = self.get_tf_resampled_single_currency_raw_data_with_base(config.TRAINING_START_DATE,
-                                                                             config.TRAINING_END_DATE, currency_dir, 15)
+                                                                             config.TRAINING_END_DATE, currency_dir)
         for period in config.MA_PERIODS:
             df_result = self.get_ma(df_result, "close", period)
         for period in config.RSI_PERIODS:
@@ -126,20 +128,16 @@ class DataGetter(object):
                         break
 
             checked_targets_arr = np.array(list_of_checked_targets)
-            print(checked_targets_arr)
-            print(checked_targets_arr.size)
-            print(df_result.count())
             padding_amount =  (df_result.count() - checked_targets_arr.size)
-            print(padding_amount[0])
             checked_targets_arr = np.pad(checked_targets_arr, (0,padding_amount[0]), 'constant', constant_values=(np.NaN, np.NaN))
-            print(checked_targets_arr)
-            print(checked_targets_arr.size)
-            print(df_result.count())
             df_result[new_col_names[list_index]] = checked_targets_arr
 
         return df_result
 
-    def get_timedeltas(self):
+    def _get_columns_for_delta_calculation(self):
+        pass
+
+    def get_deltas(self, df):
         pass
 
     def standardize_and_normalize_df(self):
