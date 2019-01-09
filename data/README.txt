@@ -1,0 +1,1 @@
+When the data in the currency foldes is seperated into multiple .xlsx files they get read in alphabetical order.
