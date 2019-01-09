@@ -5,6 +5,7 @@ We set the datetime as the index of the DF to allow for easier timeseries operat
 
 import pandas as pd
 import tf_resampler
+import talib
 
 class DataGetter(object):
 
@@ -29,3 +30,9 @@ class DataGetter(object):
         df_raw_base = self.get_single_currency_raw_data_with_base(start_date, end_date, interval, excel_file_path, suffix)
         df_resample = tf_resampler.resample(df_raw_base, tf)
         return df_resample
+
+    def get_ma(self, df, col_name, period):
+        new_col_name = col_name + "_SMA_" + str(period)
+        df[new_col_name] = talib.SMA(df[col_name], period)
+        df = df.dropna()
+        return df

@@ -47,5 +47,12 @@ class DataGetterTests(unittest.TestCase):
                                                                                                "min", filepath, dir, 15)
                 self.assertIsInstance(df_resampled, pd.DataFrame, "There was an issue creating df_resampled: filepath - {filepath}, dir - {dir}.".format(filepath=filepath, dir=dir))
 
+    def test_get_ma(self):
+        data = pd.read_excel("df_resampled.xlsx")
+        data_getter = DataGetter()
+        df_with_ma = data_getter.get_ma(data, "close", 10)
+        self.assertTrue("close_SMA_10" in df_with_ma.columns)
+
+
 if __name__ == '__main__':
     unittest.main()
