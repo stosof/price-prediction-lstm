@@ -27,6 +27,8 @@ def resample(m1_data, new_tf):
         if counter > new_tf:
             counter = 1
             resampled_data.append([new_datetime, new_open, new_high, new_low, new_close])
+            new_high = 0
+            new_low = 1000000
         if counter == 1:
             new_datetime = get_datetime_delta(new_datetime, new_tf, m1_datetimes)
             new_open = row[0]

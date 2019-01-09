@@ -38,6 +38,8 @@ class DataGetterTests(unittest.TestCase):
             df_resampled = data_getter.get_tf_resampled_single_currency_raw_data_with_base(config.TRAINING_START_DATE,
                                                                                            config.TRAINING_END_DATE,
                                                                                            currency_dir, 15)
+            # df_resampled.to_excel("df_resampled.xlsx")
+            # exit()
             self.assertIsInstance(df_resampled, pd.DataFrame,
                                   "There was an issue creating df_resampled from dir - {dir}.".format(dir=currency_dir))
 
@@ -57,9 +59,29 @@ class DataGetterTests(unittest.TestCase):
         data_getter = DataGetter()
         for currency_dir in config.get_currency_dir_paths():
             df_result = data_getter.get_df_with_indicators_single_currency(currency_dir)
+            # df_result.to_excel("df_with_indicators.xlsx")
+            # exit()
             self.assertIsInstance(df_result, pd.DataFrame,
                                   "There was an issue creating the df_result with the data in this dir - {dir}".format(
                                       dir=currency_dir))
+
+    def test_get_targets_long_short(self):
+        data_getter = DataGetter()
+
+        df_result = pd.read_excel("df_with_indicators.xlsx")
+        for target in config.PIP_TARGETS:
+            df_result = data_getter.get_targets_long_short(df_result, target)
+            self.assertIsInstance(df_result, pd.DataFrame,
+                                  "There was an issue calculating the targets for this amount - {target}".format(
+                                      target=target))
+        df_result.to_excel("df_with_targets.xlsx")
+
+    def test_get_first_reached_targets(self):
+        data_getter = DataGetter()
+        df_result = pd.read_excel("df_with_targets.xlsx")
+        df_result = data_getter.get_first_reached_targets(df_result)
+        df_result.to_excel("df_checked_targets.xlsx")
+
 
 
 if __name__ == '__main__':

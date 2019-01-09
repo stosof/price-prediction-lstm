@@ -10,6 +10,8 @@ TRAINING_END_DATE = "1/1/2018"
 MA_PERIODS = [5, 10, 15, 50, 100]
 RSI_PERIODS = [7, 14, 21]
 
+PIP_TARGETS = [0.001, 0.005, 0.01]
+
 def get_currency_dir_paths():
     currency_dir_paths = []
     for subdir in CURRENCY_SUBDIRS:

@@ -8,6 +8,7 @@ import tf_resampler
 import talib
 import os
 import config
+import numpy as np
 
 
 class DataGetter(object):
@@ -60,6 +61,89 @@ class DataGetter(object):
         for period in config.RSI_PERIODS:
             df_result = self.get_rsi(df_result, "close", period)
         return df_result
+
+    def get_df_with_indicators_multicurrency(self):
+        pass
+
+    """"We are going to frame this as a classification problem. We will add columns that show (for each row) if the price
+        first moved up or down for a given amount. We will mark these with 1 - for up and 0 - for down. We will then train
+        a LSTM model to predict the class of each row in our dataset."""
+
+    def get_targets_long_short(self, df, target_pips):
+        long_col_name = "target_long_" + str(target_pips)
+        short_col_name = "target_short_" + str(target_pips)
+        df[long_col_name] = df["close"] + target_pips
+        df[short_col_name] = df["close"] - target_pips
+        return df
+
+    def _get_indexes_of_target_columns(self, col_names):
+        target_cols_long = []
+        for col_name in col_names:
+            if "target_long" in col_name:
+                target_cols_long.append(col_name)
+
+        target_cols_short = []
+        for col_name in col_names:
+            if "target_short" in col_name:
+                target_cols_short.append(col_name)
+
+        long_target_positions = []
+        for target_col in target_cols_long:
+            long_target_positions.append(col_names.index(target_col))
+
+        short_target_positions = []
+        for target_col in target_cols_short:
+            short_target_positions.append(col_names.index(target_col))
+
+        return long_target_positions, short_target_positions
+
+
+    def get_first_reached_targets(self, df):
+        column_names = df.columns.tolist()
+        long_target_col_indexes, short_target_col_indexes = self._get_indexes_of_target_columns(column_names)
+        data = df.values
+
+        df_result = df
+        checked_target_columns_ls = []
+        new_col_names = []
+        for counter, target in enumerate(long_target_col_indexes):
+            checked_target_columns_ls.append([])
+            target_check_col_name = "target_" + str(counter)
+            new_col_names.append(target_check_col_name)
+
+        for list_index, list_of_checked_targets in enumerate(checked_target_columns_ls):
+            for row_to_check_reached_target in range(len(data)):
+                active_long_target = data[row_to_check_reached_target][long_target_col_indexes[list_index]]
+                active_short_target = data[row_to_check_reached_target][short_target_col_indexes[list_index]]
+                for row_to_compare_with in range(len(data) - row_to_check_reached_target):
+                    curr_high = data[row_to_check_reached_target + row_to_compare_with][2]
+                    curr_low = data[row_to_check_reached_target + row_to_compare_with][3]
+                    if (curr_low < active_short_target):
+                        list_of_checked_targets.append(0)
+                        break
+                    if (curr_high > active_long_target):
+                        list_of_checked_targets.append(1)
+                        break
+
+            checked_targets_arr = np.array(list_of_checked_targets)
+            print(checked_targets_arr)
+            print(checked_targets_arr.size)
+            print(df_result.count())
+            padding_amount =  (df_result.count() - checked_targets_arr.size)
+            print(padding_amount[0])
+            checked_targets_arr = np.pad(checked_targets_arr, (0,padding_amount[0]), 'constant', constant_values=(np.NaN, np.NaN))
+            print(checked_targets_arr)
+            print(checked_targets_arr.size)
+            print(df_result.count())
+            df_result[new_col_names[list_index]] = checked_targets_arr
+
+        return df_result
+
+    def get_timedeltas(self):
+        pass
+
+    def standardize_and_normalize_df(self):
+        pass
 
 
 if __name__ == "__main__":
