@@ -41,18 +41,6 @@ class DataGetterTests(unittest.TestCase):
             self.assertIsInstance(df_resampled, pd.DataFrame,
                                   "There was an issue creating df_resampled from dir - {dir}.".format(dir=currency_dir))
 
-    def test_get_ma(self):
-        data = pd.read_excel("df_resampled.xlsx")
-        data_getter = DataGetter()
-        df_with_ma = data_getter.get_ma(data, "close", 10)
-        self.assertTrue("close_SMA_10" in df_with_ma.columns)
-
-    def test_get_rsi(self):
-        data = pd.read_excel("df_resampled.xlsx")
-        data_getter = DataGetter()
-        df_with_rsi = data_getter.get_rsi(data, "close", 14)
-        self.assertTrue("close_RSI_14" in df_with_rsi.columns)
-
     def test_get_df_with_indicators_single_currency(self):
         data_getter = DataGetter()
         for currency_dir in config.get_currency_dir_paths():
@@ -98,6 +86,7 @@ class DataGetterTests(unittest.TestCase):
         reshaped_data = data_getter.get_reshaped_data_for_lstm()
         self.assertTrue(len(reshaped_data))
         utils.write_3d_np_array_to_file("reshaped_data.txt", reshaped_data)
+
 
 if __name__ == '__main__':
     unittest.main()

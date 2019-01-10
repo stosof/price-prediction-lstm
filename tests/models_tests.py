@@ -1,7 +1,5 @@
 import unittest
 from models import LSTM_NN
-import pandas as pd
-import config
 import keras
 import numpy as np
 

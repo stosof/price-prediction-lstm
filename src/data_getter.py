@@ -7,10 +7,10 @@ We reshape the data into the 3D format required for LSTM input (samples, time_st
 
 import pandas as pd
 import tf_resampler
-import talib
 import os
 import config
 import numpy as np
+import indicators
 
 
 class DataGetter(object):
@@ -44,26 +44,12 @@ class DataGetter(object):
         df_resample = tf_resampler.resample(df_raw_base)
         return df_resample
 
-    @staticmethod
-    def get_ma(df, col_name, period):
-        new_col_name = col_name + "_SMA_" + str(period)
-        df[new_col_name] = talib.SMA(df[col_name], period)
-        df = df.dropna()
-        return df
-
-    @staticmethod
-    def get_rsi(df, col_name, period):
-        new_col_name = col_name + "_RSI_" + str(period)
-        df[new_col_name] = talib.RSI(df[col_name], period)
-        df = df.dropna()
-        return df
-
     def get_df_with_indicators_single_currency(self, currency_dir):
         df_result = self.get_tf_resampled_single_currency_raw_data_with_base(currency_dir)
         for period in config.MA_PERIODS:
-            df_result = self.get_ma(df_result, "close", period)
+            df_result = indicators.get_ma(df_result, "close", period)
         for period in config.RSI_PERIODS:
-            df_result = self.get_rsi(df_result, "close", period)
+            df_result = indicators.get_rsi(df_result, "close", period)
         return df_result
 
     # TODO This is currently a placeholder that returns only data from the EURUSD dir.
