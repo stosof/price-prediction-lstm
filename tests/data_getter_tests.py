@@ -61,31 +61,31 @@ class DataGetterTests(unittest.TestCase):
         data_getter = DataGetter()
         df_result = data_getter.get_targets_long_short()
         self.assertIsInstance(df_result, pd.DataFrame, "There was an issue calculating the targets.")
-        df_result.to_excel("df_with_targets.xlsx")
+        df_result.to_excel("../output/df_with_targets.xlsx")
 
     def test_get_first_reached_targets(self):
         data_getter = DataGetter()
         df_result = data_getter.get_first_reached_targets()
         self.assertIsInstance(df_result, pd.DataFrame, "There was an issue calculating the targets reached.")
-        df_result.to_excel("df_reached_targets.xlsx")
+        df_result.to_excel("../output/df_reached_targets.xlsx")
 
     def test_get_deltas(self):
         data_getter = DataGetter()
         df_result = data_getter.get_deltas()
         self.assertIsInstance(df_result, pd.DataFrame, "There was an issue calculating the delta values.")
-        df_result.to_excel("df_deltas.xlsx")
+        df_result.to_excel("../output/df_deltas.xlsx")
 
     def test_get_standardized_and_normalized_df(self):
         data_getter = DataGetter()
         df_result = data_getter.get_standardized_and_normalized_df()
         self.assertIsInstance(df_result, pd.DataFrame, "There was with standardization and normalization.")
-        df_result.to_excel("df_norm_std.xlsx")
+        df_result.to_excel("../output/df_norm_std.xlsx")
 
     def test_get_reshaped_data_for_lstm(self):
         data_getter = DataGetter()
         reshaped_data = data_getter.get_reshaped_data_for_lstm()
         self.assertTrue(len(reshaped_data))
-        utils.write_3d_np_array_to_file("reshaped_data.txt", reshaped_data)
+        utils.write_3d_np_array_to_file("../output/reshaped_data.txt", reshaped_data)
 
 
 if __name__ == '__main__':
