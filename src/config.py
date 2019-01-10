@@ -3,6 +3,7 @@ import os
 BASE_DIR = ".."
 DATA_DIR = "data"
 CURRENCY_SUBDIRS = ["eurusd", "gbpusd"]
+MODELS_DIR = "models"
 
 DF_BASE_START_DATE = "1/1/2017"
 DF_BASE_END_DATE = "1/1/2018"
@@ -29,4 +30,8 @@ def get_currency_dir_paths():
         path = os.path.join(BASE_DIR, DATA_DIR, subdir)
         currency_dir_paths.append(path)
     return currency_dir_paths
+
+def get_models_dir():
+    path = os.path.join(BASE_DIR, MODELS_DIR)
+    return path
 

@@ -4,6 +4,7 @@ from keras.layers import Dense, Dropout, LSTM
 from keras.callbacks import ModelCheckpoint
 from data_getter import DataGetter
 import config
+import os
 
 
 class LSTM_NN(object):
@@ -49,11 +50,21 @@ class LSTM_NN(object):
         callbacks = self._get_callbacks()
         history = model.fit(X, Y, epochs=nb_epoch, batch_size=n_batch, verbose=1, shuffle=False, callbacks=callbacks,
                   validation_data=(X, Y))
+        self.persist_model_json(model)
         return history
 
+    def persist_model_json(self, model):
+        model_json = model.to_json()
+        models_dir = config.get_models_dir()
+        models_dir = os.path.join(models_dir, "model_architecture.json")
+        with open(models_dir, "w") as json_file:
+            json_file.write(model_json)
+
     def _get_callbacks(self):
+        models_dir = config.get_models_dir()
         filepath = "weights-improvement-{epoch:02d}-{val_acc:.2f}.hdf5"
-        checkpoint = ModelCheckpoint(filepath, monitor='acc', verbose=1, save_best_only=True, mode='max')
+        models_dir = os.path.join(models_dir, filepath)
+        checkpoint = ModelCheckpoint(models_dir, monitor='acc', verbose=1, save_best_only=True, mode='max')
         callbacks_list = [checkpoint]
         return callbacks_list
 
