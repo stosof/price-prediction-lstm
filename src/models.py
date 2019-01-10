@@ -5,6 +5,7 @@ from keras.callbacks import ModelCheckpoint
 from data_getter import DataGetter
 import config
 import os
+from keras.models import model_from_json
 
 
 class LSTM_NN(object):
@@ -25,13 +26,37 @@ class LSTM_NN(object):
         Y = self._get_training_data_y()
         return X, Y
 
+    def get_testing_data(self):
+        X = self._get_testing_data_x()
+        Y = self._get_training_data_y()
+        return X, Y
+
     def _get_training_data_x(self):
         data_getter = DataGetter()
         reshaped_data_lstm = data_getter.get_reshaped_data_for_lstm()
         self.X = reshaped_data_lstm
         return reshaped_data_lstm
 
+    def _get_testing_data_x(self):
+        data_getter = DataGetter()
+        config.DF_BASE_START_DATE = "1/1/2018"
+        config.DF_BASE_END_DATE = "3/31/2018"
+        reshaped_data_lstm = data_getter.get_reshaped_data_for_lstm()
+        self.X = reshaped_data_lstm
+        return reshaped_data_lstm
+
     def _get_training_data_y(self):
+        data_getter = DataGetter()
+        df_result = data_getter.get_deltas()
+        df_result = df_result[config.TRAINING_DATA_TARGET]
+        y = df_result.values
+        if self.X is None:
+            raise Exception('X needs to be defined before defining Y. Run _get_training_data_x before this method.')
+        y = y[0:self.X.shape[0]]
+        y = self._one_hot_encode(y, 2)
+        return y
+
+    def _get_testing_data_y(self):
         data_getter = DataGetter()
         df_result = data_getter.get_deltas()
         df_result = df_result[config.TRAINING_DATA_TARGET]
@@ -72,6 +97,24 @@ class LSTM_NN(object):
         X, Y = self.get_training_data()
         self.fit_model(X=X, Y=Y, n_batch=config.TRAINING_BATCH_SIZE, nb_epoch=config.TRAINING_EPOCHS)
 
+    def _evaluate_model(self, model_json, model_h5, X, Y):
+        # load json and create model
+        json_file = open(model_json, 'r')
+        loaded_model_json = json_file.read()
+        json_file.close()
+        loaded_model = model_from_json(loaded_model_json)
+        loaded_model.load_weights(model_h5)
+        loaded_model.compile(loss='binary_crossentropy', optimizer='rmsprop', metrics=['accuracy'])
+        score = loaded_model.evaluate(X, Y, verbose=0)
+        print("%s: %.2f%%" % (loaded_model.metrics_names[1], score[1] * 100))
+
+    def start_model_evaluation(self):
+        X, Y = self.get_testing_data()
+        model_json = config.get_models_dir()
+        model_json = os.path.join(model_json, "model_architecture.json")
+        self._evaluate_model(model_json, "weights-improvement-99-0.80.hdf5", X, Y)
+
 if __name__ == "__main__":
     lstm = LSTM_NN()
-    lstm.start_model_training()
+    # lstm.start_model_training()
+    lstm.start_model_evaluation()
