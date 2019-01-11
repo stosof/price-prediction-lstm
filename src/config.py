@@ -22,6 +22,9 @@ TRAINING_DATA_TARGET = "target_0"
 TRAINING_BATCH_SIZE = 1000
 TRAINING_EPOCHS = 250
 
+TESTING_DATE_START = "1/1/2018"
+TESTING_DATE_END = "3/31/2018"
+
 def get_currency_dir_paths():
     currency_dir_paths = []
     for subdir in CURRENCY_SUBDIRS:

@@ -39,8 +39,8 @@ class LSTM_NN(object):
 
     def _get_testing_data_x(self):
         data_getter = DataGetter()
-        config.DF_BASE_START_DATE = "1/1/2018"
-        config.DF_BASE_END_DATE = "3/31/2018"
+        config.DF_BASE_START_DATE = config.TESTING_DATE_START
+        config.DF_BASE_END_DATE = config.TESTING_DATE_END
         reshaped_data_lstm = data_getter.get_reshaped_data_for_lstm()
         self.X = reshaped_data_lstm
         return reshaped_data_lstm
