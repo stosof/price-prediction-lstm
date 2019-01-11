@@ -5,10 +5,8 @@ DATA_DIR = "data"
 CURRENCY_SUBDIRS = ["eurusd", "gbpusd"]
 MODELS_DIR = "models"
 
-DF_BASE_START_DATE = "1/1/2017"
-DF_BASE_END_DATE = "1/1/2018"
-DF_BASE_FREQUENCY = "min"
-
+TRAINING_DATE_START = "1/1/2017"
+TRAINING_DATE_END = "1/1/2018"
 RESAMPLE_TF = 15
 
 MA_PERIODS = [5, 10, 15, 50, 100]
@@ -24,6 +22,10 @@ TRAINING_EPOCHS = 250
 
 TESTING_DATE_START = "1/1/2018"
 TESTING_DATE_END = "3/31/2018"
+
+DF_BASE_START_DATE = None
+DF_BASE_END_DATE = None
+DF_BASE_FREQUENCY = "min"
 
 def get_currency_dir_paths():
     currency_dir_paths = []

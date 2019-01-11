@@ -15,6 +15,8 @@ import indicators
 
 class DataGetter(object):
     def get_df_base(self):
+        config.DF_BASE_START_DATE = config.TRAINING_DATE_START
+        config.DF_BASE_END_DATE = config.TRAINING_DATE_END
         date_range = pd.date_range(start=config.DF_BASE_START_DATE, end=config.DF_BASE_END_DATE,
                                    freq=config.DF_BASE_FREQUENCY)
         df_base = pd.DataFrame(index=date_range)
