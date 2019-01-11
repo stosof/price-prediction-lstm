@@ -28,11 +28,13 @@ class LSTM_NN(object):
 
     def get_testing_data(self):
         X = self._get_testing_data_x()
-        Y = self._get_training_data_y()
+        Y = self._get_testing_data_y()
         return X, Y
 
     def _get_training_data_x(self):
         data_getter = DataGetter()
+        config.DF_BASE_START_DATE = config.TRAINING_DATE_START
+        config.DF_BASE_END_DATE = config.TRAINING_DATE_END
         reshaped_data_lstm = data_getter.get_reshaped_data_for_lstm()
         self.X = reshaped_data_lstm
         return reshaped_data_lstm
@@ -62,7 +64,7 @@ class LSTM_NN(object):
         df_result = df_result[config.TRAINING_DATA_TARGET]
         y = df_result.values
         if self.X is None:
-            raise Exception('X needs to be defined before defining Y. Run _get_training_data_x before this method.')
+            raise Exception('X needs to be defined before defining Y. Run _get_testing_data_x before this method.')
         y = y[0:self.X.shape[0]]
         y = self._one_hot_encode(y, 2)
         return y
@@ -74,7 +76,7 @@ class LSTM_NN(object):
         model = self.get_compiled_lstm()
         callbacks = self._get_callbacks()
         history = model.fit(X, Y, epochs=nb_epoch, batch_size=n_batch, verbose=1, shuffle=False, callbacks=callbacks,
-                  validation_data=(X, Y))
+                            validation_data=(X, Y))
         self.persist_model_json(model)
         return history
 
@@ -110,11 +112,5 @@ class LSTM_NN(object):
 
     def start_model_evaluation(self):
         X, Y = self.get_testing_data()
-        model_json = config.get_models_dir()
-        model_json = os.path.join(model_json, "model_architecture.json")
-        self._evaluate_model(model_json, "weights-improvement-99-0.80.hdf5", X, Y)
-
-if __name__ == "__main__":
-    lstm = LSTM_NN()
-    # lstm.start_model_training()
-    lstm.start_model_evaluation()
+        model_json, model_weights = config.get_model_json_and_weights_path()
+        self._evaluate_model(model_json, model_weights, X, Y)

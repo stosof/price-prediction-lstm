@@ -1,5 +1,6 @@
 import numpy as np
 
+
 def write_3d_np_array_to_file(output_filepath, data):
     with open(output_filepath, 'w') as outfile:
         outfile.write('# Array shape: {0}\n'.format(data.shape))

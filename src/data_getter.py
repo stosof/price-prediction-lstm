@@ -15,8 +15,6 @@ import indicators
 
 class DataGetter(object):
     def get_df_base(self):
-        config.DF_BASE_START_DATE = config.TRAINING_DATE_START
-        config.DF_BASE_END_DATE = config.TRAINING_DATE_END
         date_range = pd.date_range(start=config.DF_BASE_START_DATE, end=config.DF_BASE_END_DATE,
                                    freq=config.DF_BASE_FREQUENCY)
         df_base = pd.DataFrame(index=date_range)
@@ -192,8 +190,3 @@ class DataGetter(object):
             reshaped_data.append(seq_tmp)
         reshaped_data = np.array(reshaped_data)
         return reshaped_data
-
-
-if __name__ == "__main__":
-    data_getter = DataGetter()
-    data_getter.get_reshaped_data_for_lstm()

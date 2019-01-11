@@ -22,10 +22,13 @@ TRAINING_EPOCHS = 250
 
 TESTING_DATE_START = "1/1/2018"
 TESTING_DATE_END = "3/31/2018"
+TESTING_MODEL_WEIGHTS = None
+TESTING_MODEL_ARCHITECTURE = None
 
 DF_BASE_START_DATE = None
 DF_BASE_END_DATE = None
 DF_BASE_FREQUENCY = "min"
+
 
 def get_currency_dir_paths():
     currency_dir_paths = []
@@ -34,7 +37,14 @@ def get_currency_dir_paths():
         currency_dir_paths.append(path)
     return currency_dir_paths
 
+
 def get_models_dir():
     path = os.path.join(BASE_DIR, MODELS_DIR)
     return path
 
+
+def get_model_json_and_weights_path():
+    models_dir_path = get_models_dir()
+    json_path = os.path.join(models_dir_path, TESTING_MODEL_ARCHITECTURE)
+    weights_path = os.path.join(models_dir_path, TESTING_MODEL_WEIGHTS)
+    return json_path, weights_path

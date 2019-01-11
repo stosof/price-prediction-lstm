@@ -12,6 +12,7 @@ def get_datetime_delta(new_datetime, new_tf, m1_datetimes):
     if new_tf == 15:
         return new_datetime + pd.Timedelta("15min")
 
+
 def resample(m1_data):
     m1_arr = m1_data.values
     m1_datetimes = m1_data.index
