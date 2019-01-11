@@ -7,7 +7,10 @@ import pandas as pd
 
 class DataGetterTests(unittest.TestCase):
     def setUp(self):
-        pass
+        config.TRAINING_DATE_START = "1/1/2017"
+        config.TRAINING_DATE_END = "2/1/2017"
+        config.DF_BASE_START_DATE = config.TRAINING_DATE_START
+        config.DF_BASE_END_DATE = config.TRAINING_DATE_END
 
     def tearDown(self):
         pass
