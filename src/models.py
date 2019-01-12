@@ -6,6 +6,9 @@ from data_getter import DataGetter
 import config
 import os
 from keras.models import model_from_json
+from sklearn.metrics import classification_report
+
+import pandas as pd
 
 
 class LSTM_NN(object):
@@ -100,15 +103,23 @@ class LSTM_NN(object):
         self.fit_model(X=X, Y=Y, n_batch=config.TRAINING_BATCH_SIZE, nb_epoch=config.TRAINING_EPOCHS)
 
     def _evaluate_model(self, model_json, model_h5, X, Y):
-        # load json and create model
         json_file = open(model_json, 'r')
         loaded_model_json = json_file.read()
         json_file.close()
         loaded_model = model_from_json(loaded_model_json)
         loaded_model.load_weights(model_h5)
         loaded_model.compile(loss='binary_crossentropy', optimizer='rmsprop', metrics=['accuracy'])
-        score = loaded_model.evaluate(X, Y, verbose=0)
+        score = loaded_model.evaluate(X, Y, verbose=1)
         print("%s: %.2f%%" % (loaded_model.metrics_names[1], score[1] * 100))
+        Y_pred = loaded_model.predict_classes(X)
+        Y_true = Y[:, 1]
+        print(classification_report(Y_true, Y_pred, digits=5))
+
+        data_getter = DataGetter()
+        deltas = data_getter.get_deltas()
+        deltas = deltas[0:Y_pred.shape[0]]
+        deltas["Y_Pred"] = Y_pred
+        deltas.to_excel("../output/df_predictions.xlsx")
 
     def start_model_evaluation(self):
         X, Y = self.get_testing_data()
