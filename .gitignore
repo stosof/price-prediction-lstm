@@ -1,3 +1,4 @@
 *.pyc
 .idea/*
 reshaped_data.txt
+*.log

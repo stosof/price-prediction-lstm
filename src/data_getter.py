@@ -11,16 +11,19 @@ import os
 import config
 import numpy as np
 import indicators
+import logger
 
 
 class DataGetter(object):
     def get_df_base(self):
+        logger.log_info("Getting Base DF.")
         date_range = pd.date_range(start=config.DF_BASE_START_DATE, end=config.DF_BASE_END_DATE,
                                    freq=config.DF_BASE_FREQUENCY)
         df_base = pd.DataFrame(index=date_range)
         return df_base
 
     def get_raw_data_from_excel_files_for_single_currency(self, currency_dir):
+        logger.log_info("Getting raw data from excel files in {}.".format(currency_dir))
         files_in_dir = [f for f in os.listdir(currency_dir) if os.path.isfile(os.path.join(currency_dir, f))]
 
         df_ls = []
@@ -35,16 +38,19 @@ class DataGetter(object):
         return df_result
 
     def get_single_currency_raw_data_with_base(self, currency_dir):
+        logger.log_info("Getting concatenated raw data and base data for files in {}.".format(currency_dir))
         df_base = self.get_df_base()
         raw_data = self.get_raw_data_from_excel_files_for_single_currency(currency_dir)
         return df_base.join(raw_data, rsuffix=currency_dir)
 
     def get_tf_resampled_single_currency_raw_data_with_base(self, currency_dir):
+        logger.log_info("Resampling the time frame of data from {}.".format(currency_dir))
         df_raw_base = self.get_single_currency_raw_data_with_base(currency_dir)
         df_resample = tf_resampler.resample(df_raw_base)
         return df_resample
 
     def get_df_with_indicators_single_currency(self, currency_dir):
+        logger.log_info("Calculating technical indicators for data from {}.".format(currency_dir))
         df_result = self.get_tf_resampled_single_currency_raw_data_with_base(currency_dir)
         for period in config.MA_PERIODS:
             df_result = indicators.get_ma(df_result, "close", period)
@@ -54,6 +60,7 @@ class DataGetter(object):
 
     # TODO This is currently a placeholder that returns only data from the EURUSD dir.
     def get_df_with_indicators_multicurrency(self):
+        logger.log_info("Getting data for these currencies - {}.".format(config.CURRENCY_SUBDIRS))
         df_result = self.get_df_with_indicators_single_currency("../data/eurusd/")
         return df_result
 
@@ -64,6 +71,7 @@ class DataGetter(object):
     def get_targets_long_short(self):
         df_result = self.get_df_with_indicators_multicurrency()
         for target_pips in config.PIP_TARGETS:
+            logger.log_info("Calculating the long and short targets - {}.".format(target_pips))
             long_col_name = "target_long_" + str(target_pips)
             short_col_name = "target_short_" + str(target_pips)
             df_result[long_col_name] = df_result["close"] + target_pips
@@ -71,6 +79,7 @@ class DataGetter(object):
         return df_result
 
     def get_first_reached_targets(self):
+        logger.log_info("Checking which targets the price reach first.")
         df_result = self.get_targets_long_short()
         column_names = df_result.columns.tolist()
         long_target_col_indexes, short_target_col_indexes = self._get_indexes_of_target_columns(column_names)
@@ -126,11 +135,13 @@ class DataGetter(object):
         return long_target_positions, short_target_positions
 
     def get_deltas(self):
+        logger.log_info("Calculating indicator time deltas for the periods - {}.".format(config.DELTA_PERIODS))
         df_result = self.get_first_reached_targets()
         df_columns = df_result.columns
         cols_for_delta_calc = self._get_feature_columns(df_columns)
 
         for col in cols_for_delta_calc:
+            logger.log_info("Calculating indicator time deltas for column - {}.".format(col))
             for period in config.DELTA_PERIODS:
                 new_col_name = col + "_delta_" + str(period)
                 df_result[new_col_name] = df_result[col].shift(period)
@@ -148,6 +159,7 @@ class DataGetter(object):
         return cols_for_delta_calc
 
     def get_standardized_and_normalized_df(self):
+        logger.log_info("Standardizing and normalizing data.")
         df_result = self.get_deltas()
         feature_cols = self._get_feature_columns(df_result.columns)
         self._standardize_df(df_result, feature_cols)
@@ -179,6 +191,7 @@ class DataGetter(object):
         return mean_col_name, col_mean, std_col_name, col_std
 
     def get_reshaped_data_for_lstm(self):
+        logger.log_info("Reshaping data for lstm input.")
         df_result = self.get_standardized_and_normalized_df()
         df_cols = df_result.columns
         feature_cols = self._get_feature_columns(df_cols)

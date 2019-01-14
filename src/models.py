@@ -7,8 +7,7 @@ import config
 import os
 from keras.models import model_from_json
 from sklearn.metrics import classification_report
-
-import pandas as pd
+import logger
 
 
 class LSTM_NN(object):
@@ -110,18 +109,29 @@ class LSTM_NN(object):
         loaded_model.load_weights(model_h5)
         loaded_model.compile(loss='binary_crossentropy', optimizer='rmsprop', metrics=['accuracy'])
         score = loaded_model.evaluate(X, Y, verbose=1)
-        print("%s: %.2f%%" % (loaded_model.metrics_names[1], score[1] * 100))
+        logger.log_info("Loaded model accuracy - %s: %.2f%%" % (loaded_model.metrics_names[1], score[1] * 100))
         Y_pred = loaded_model.predict_classes(X)
         Y_true = Y[:, 1]
-        print(classification_report(Y_true, Y_pred, digits=5))
+        logger.log_info("Generating classification report.")
+        logger.log_info(classification_report(Y_true, Y_pred, digits=5))
 
         data_getter = DataGetter()
         deltas = data_getter.get_deltas()
         deltas = deltas[0:Y_pred.shape[0]]
         deltas["Y_Pred"] = Y_pred
+        logger.log_info("Saving predictions to output file - ../output/df_predictions.xlsx")
         deltas.to_excel("../output/df_predictions.xlsx")
 
+    def _log_evaluation_config(self, model_json, model_weights, X, Y):
+        logger.log_info(
+            "Using model architecture from - {model_arch_path} and weights from - {model_weights_path}.".format(
+                model_arch_path=model_json, model_weights_path=model_weights))
+        logger.log_info("Testing period from {start} to {end}.".format(start=config.TESTING_DATE_START,
+                                                                       end=config.TESTING_DATE_END))
+
     def start_model_evaluation(self):
+        logger.log_info("Starting model evaluation.")
         X, Y = self.get_testing_data()
         model_json, model_weights = config.get_model_json_and_weights_path()
+        self._log_evaluation_config(model_json, model_weights, X, Y)
         self._evaluate_model(model_json, model_weights, X, Y)
