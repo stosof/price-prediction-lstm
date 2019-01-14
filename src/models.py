@@ -8,6 +8,7 @@ import os
 from keras.models import model_from_json
 from sklearn.metrics import classification_report
 import logger
+import matplotlib.pyplot as plt
 
 
 class LSTM_NN(object):
@@ -119,10 +120,29 @@ class LSTM_NN(object):
         callbacks_list = [checkpoint]
         return callbacks_list
 
+    @staticmethod
+    def _plot_training_history(history):
+        plt.plot(history.history['acc'])
+        plt.plot(history.history['val_acc'])
+        plt.title('model accuracy')
+        plt.ylabel('accuracy')
+        plt.xlabel('epoch')
+        plt.legend(['train', 'test'], loc='upper left')
+        plt.show()
+
+        plt.plot(history.history['loss'])
+        plt.plot(history.history['val_loss'])
+        plt.title('model loss')
+        plt.ylabel('loss')
+        plt.xlabel('epoch')
+        plt.legend(['train', 'test'], loc='upper left')
+        plt.show()
+
     def start_model_training(self):
         X, Y, X_val, Y_val = self.get_training_data()
-        self.fit_model(X=X, Y=Y, X_val=X_val, Y_val=Y_val, n_batch=config.TRAINING_BATCH_SIZE,
+        history = self.fit_model(X=X, Y=Y, X_val=X_val, Y_val=Y_val, n_batch=config.TRAINING_BATCH_SIZE,
                        nb_epoch=config.TRAINING_EPOCHS)
+        self._plot_training_history(history)
 
     def _evaluate_model(self, model_json, model_h5, X, Y):
         json_file = open(model_json, 'r')
