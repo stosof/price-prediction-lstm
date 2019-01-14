@@ -15,7 +15,7 @@ We then check which target the price will move to first and add a binary classif
     - 0 = we reached the short target first.
 
 start_evaluation() - Starts the inference process.
-Generates predictions for the period between TESTING_START_DATE and TESTING_END_DATE.
+Generates predictions for the period between TESTING_DATE_START and TESTING_DATE_END.
 Loads the saved model architecture with the name of TESTING_MODEL_ARCHITECTURE from the models dir.
 Loads the weights to be used with the specified model architecture from TESTING_MODEL_WEIGHTS.
     Output:
