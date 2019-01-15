@@ -33,24 +33,26 @@ import config
 
 
 def start_evaluation():
+    config.MODE = "test"
     model = models.LSTM_NN()
-    config.TESTING_DATE_START = "1/1/2018"  # MM/DD/YYYY
-    config.TESTING_DATE_END = "31/3/2018"
+    config.TESTING_DATE_START = "2/1/2018"  # MM/DD/YYYY
+    config.TESTING_DATE_END = "3/1/2018"
     config.TESTING_MODEL_ARCHITECTURE = "model_architecture.json"
-    config.TESTING_MODEL_WEIGHTS = "weights-improvement-99-0.80.hdf5"
+    config.TESTING_MODEL_WEIGHTS = "weights-improvement-109-0.79.hdf5"
     model.start_model_evaluation()
 
 
 def start_training():
+    config.MODE = "train"
     model = models.LSTM_NN()
     config.TRAINING_DATE_START = "1/1/2017"
     config.TRAINING_DATE_END = "1/1/2018"
-    config.VALIDATION_DATE_START =  config.TRAINING_DATE_START
-    config.VALIDATION_DATE_END = config.TRAINING_DATE_END
-    config.TRAINING_EPOCHS = 100
+    config.VALIDATION_DATE_START =  "1/1/2018"
+    config.VALIDATION_DATE_END = "2/1/2018"
+    config.TRAINING_EPOCHS = 250
     model.start_model_training()
 
 
 if __name__ == "__main__":
-    start_training()
-    # start_evaluation()
+    # start_training()
+    start_evaluation()

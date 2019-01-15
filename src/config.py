@@ -1,5 +1,7 @@
 import os
 
+MODE = None
+
 BASE_DIR = ".."
 DATA_DIR = "data"
 CURRENCY_SUBDIRS = ["eurusd", "gbpusd"]

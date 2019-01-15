@@ -12,9 +12,13 @@ import config
 import numpy as np
 import indicators
 import logger
+import json
 
 
 class DataGetter(object):
+    def __init__(self):
+        self.regularization_params = {}
+
     def get_df_base(self):
         logger.log_info("Getting Base DF.")
         date_range = pd.date_range(start=config.DF_BASE_START_DATE, end=config.DF_BASE_END_DATE,
@@ -162,13 +166,37 @@ class DataGetter(object):
         logger.log_info("Standardizing and normalizing data.")
         df_result = self.get_deltas()
         feature_cols = self._get_feature_columns(df_result.columns)
-        self._standardize_df(df_result, feature_cols)
-        self._normalize_df(df_result, feature_cols)
-        return df_result
 
-    def _normalize_df(self, df, cols_to_normalize):
+        if config.MODE == "train":
+            self._standardize_df_train(df_result, feature_cols)
+            self._normalize_df_train(df_result, feature_cols)
+            self._store_params()
+            return df_result
+
+        if config.MODE == "test":
+            self._load_params()
+            df_result = self._standardize_df_test(df_result, feature_cols)
+            df_result = self._normalize_df_test(df_result, feature_cols)
+            return df_result
+
+    def _store_params(self):
+        with open("../models/regularization_params.json", 'w') as file:
+            json.dump(self.regularization_params, file)
+
+    def _load_params(self):
+        with open("../models/regularization_params.json", 'r') as file:
+            self.regularization_params = json.load(file)
+
+    def _normalize_df_train(self, df, cols_to_normalize):
         for col in cols_to_normalize:
-            self._normalize_col(df, col)
+            max_col_name, col_max, min_col_name, col_min = self._normalize_col(df, col)
+            self.regularization_params[max_col_name] = col_max
+            self.regularization_params[min_col_name] = col_min
+
+    def _normalize_df_test(self, df, cols_to_normalize):
+        for col in cols_to_normalize:
+            df = self._normalize_col_test(df, col)
+        return df
 
     def _normalize_col(self, df, col):
         col_max = df[col].max()
@@ -178,9 +206,24 @@ class DataGetter(object):
         df[col] = (df[col] - col_min) / (col_max - col_min)
         return max_col_name, col_max, min_col_name, col_min
 
-    def _standardize_df(self, df, cols_to_standardize):
+    def _normalize_col_test(self, df, col):
+        max_col_name = col + "_max"
+        min_col_name = col + "_min"
+        col_max = self.regularization_params[max_col_name]
+        col_min = self.regularization_params[min_col_name]
+        df[col] = (df[col] - col_min) / (col_max - col_min)
+        return df
+
+    def _standardize_df_train(self, df, cols_to_standardize):
         for col in cols_to_standardize:
-            self._standardize_col(df, col)
+            mean_col_name, col_mean, std_col_name, col_std = self._standardize_col(df, col)
+            self.regularization_params[mean_col_name] = col_mean
+            self.regularization_params[std_col_name] = col_std
+
+    def _standardize_df_test(self, df, cols_to_standardize):
+        for col in cols_to_standardize:
+            df = self._standardize_col_test(df, col)
+        return df
 
     def _standardize_col(self, df, col):
         col_mean = df[col].mean()
@@ -189,6 +232,14 @@ class DataGetter(object):
         std_col_name = col + "_std"
         df[col] = (df[col] - col_mean) / col_std
         return mean_col_name, col_mean, std_col_name, col_std
+
+    def _standardize_col_test(self, df, col):
+        mean_col_name = col + "_mean"
+        std_col_name = col + "_std"
+        col_mean = self.regularization_params[mean_col_name]
+        col_std = self.regularization_params[std_col_name]
+        df[col] = (df[col] - col_mean) / col_std
+        return df
 
     def get_reshaped_data_for_lstm(self):
         logger.log_info("Reshaping data for lstm input.")
