@@ -19,7 +19,9 @@ class LSTM_NN(object):
     def get_compiled_lstm(self):
         model = Sequential()
         model.add(LSTM(1024, input_shape=(config.SEQUENCE_LENGTH, 156)))
+        model.add(Dropout(0.25))
         model.add(Dense(256, activation='relu'))
+        model.add(Dropout(0.25))
         model.add(Dense(128, activation='relu'))
         model.add(Dense(2, activation='softmax'))
         model.compile(loss='binary_crossentropy', optimizer='rmsprop', metrics=['accuracy'])

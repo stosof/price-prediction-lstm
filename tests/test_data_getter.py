@@ -7,6 +7,7 @@ import pandas as pd
 
 class DataGetterTests(unittest.TestCase):
     def setUp(self):
+        config.MODE = "train"
         config.TRAINING_DATE_START = "1/1/2017"
         config.TRAINING_DATE_END = "2/1/2017"
         config.DF_BASE_START_DATE = config.TRAINING_DATE_START
@@ -83,7 +84,7 @@ class DataGetterTests(unittest.TestCase):
     def test_get_standardized_and_normalized_df(self):
         data_getter = DataGetter()
         df_result = data_getter.get_standardized_and_normalized_df()
-        self.assertIsInstance(df_result, pd.DataFrame, "There was with standardization and normalization.")
+        self.assertIsInstance(df_result, pd.DataFrame, "There was an issue with standardization and normalization.")
         df_result.to_excel("../output/df_norm_std.xlsx")
 
     def test_get_reshaped_data_for_lstm(self):

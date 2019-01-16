@@ -2,10 +2,17 @@ import unittest
 from models import LSTM_NN
 import keras
 import numpy as np
+import config
 
 class ModelsTests(unittest.TestCase):
     def setUp(self):
-        pass
+        config.MODE = "train"
+        config.TRAINING_DATE_START = "1/1/2017"
+        config.TRAINING_DATE_END = "2/1/2017"
+        config.DF_BASE_START_DATE = config.TRAINING_DATE_START
+        config.DF_BASE_END_DATE = config.TRAINING_DATE_END
+        config.VALIDATION_DATE_START = "1/1/2017"
+        config.VALIDATION_DATE_END = "2/1/2017"
 
     def tearDown(self):
         pass
