@@ -141,8 +141,32 @@ class LSTM_NN(object):
     def start_model_training(self):
         X, Y, X_val, Y_val = self.get_training_data()
         history = self.fit_model(X=X, Y=Y, X_val=X_val, Y_val=Y_val, n_batch=config.TRAINING_BATCH_SIZE,
-                       nb_epoch=config.TRAINING_EPOCHS)
+                                 nb_epoch=config.TRAINING_EPOCHS)
         self._plot_training_history(history)
+
+    def _get_classes_for_different_thresholds(self, y_proba):
+        y_preds = []
+        for threshold in config.PREDICTION_THRESHOLDS:
+            y_pred = self._get_classes_for_single_threshold(y_proba, threshold)
+            y_preds.append(y_pred)
+        return y_preds
+
+    @staticmethod
+    def _get_classes_for_single_threshold(y_proba, threshold):
+        if threshold < 0.5:
+            raise Exception("Threshold needs to be more than 0.5")
+
+        y_pred = []
+        for pred in y_proba:
+            if pred[0] > threshold:
+                y_pred.append(0)
+            if pred[1] > threshold:
+                y_pred.append(1)
+
+            if not pred[0] > threshold and not pred[1] > threshold:
+                y_pred.append(-1)
+
+        return y_pred
 
     def _evaluate_model(self, model_json, model_h5, X, Y):
         json_file = open(model_json, 'r')
@@ -153,17 +177,14 @@ class LSTM_NN(object):
         loaded_model.compile(loss='binary_crossentropy', optimizer='rmsprop', metrics=['accuracy'])
         score = loaded_model.evaluate(X, Y, verbose=1)
         logger.log_info("Loaded model accuracy - %s: %.2f%%" % (loaded_model.metrics_names[1], score[1] * 100))
-        Y_pred = loaded_model.predict_classes(X)
-        Y_true = Y[:, 1]
-        logger.log_info("Generating classification report.")
-        logger.log_info(classification_report(Y_true, Y_pred, digits=5))
+        Y_proba = loaded_model.predict_proba(X)
+        Y_preds = self._get_classes_for_different_thresholds(Y_proba)
 
-        data_getter = DataGetter()
-        deltas = data_getter.get_deltas()
-        deltas = deltas[0:Y_pred.shape[0]]
-        deltas["Y_Pred"] = Y_pred
-        logger.log_info("Saving predictions to output file - ../output/df_predictions.xlsx")
-        deltas.to_excel("../output/df_predictions.xlsx")
+        Y_true = Y[:, 1]
+        logger.log_info("Generating classification reports.")
+        for pos, Y_pred in enumerate(Y_preds):
+            logger.log_info("Classification report for threshold = {}".format(config.PREDICTION_THRESHOLDS[pos]))
+            logger.log_info(classification_report(Y_true, Y_pred, digits=5, labels=[0, 1]))
 
     def _log_evaluation_config(self, model_json, model_weights, X, Y):
         logger.log_info(

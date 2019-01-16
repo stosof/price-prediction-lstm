@@ -33,6 +33,8 @@ DF_BASE_START_DATE = None
 DF_BASE_END_DATE = None
 DF_BASE_FREQUENCY = "min"
 
+PREDICTION_THRESHOLDS = [0.5, 0.75, 0.9, 0.95, 0.99]
+
 
 def get_currency_dir_paths():
     currency_dir_paths = []

@@ -47,7 +47,7 @@ def start_training():
     model = models.LSTM_NN()
     config.TRAINING_DATE_START = "1/1/2017"
     config.TRAINING_DATE_END = "1/1/2018"
-    config.VALIDATION_DATE_START =  "1/1/2018"
+    config.VALIDATION_DATE_START = "1/1/2018"
     config.VALIDATION_DATE_END = "2/1/2018"
     config.TRAINING_EPOCHS = 250
     model.start_model_training()
