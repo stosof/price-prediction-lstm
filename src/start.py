@@ -38,7 +38,7 @@ def start_evaluation():
     config.TESTING_DATE_START = "2/1/2018"  # MM/DD/YYYY
     config.TESTING_DATE_END = "3/1/2018"
     config.TESTING_MODEL_ARCHITECTURE = "model_architecture.json"
-    config.TESTING_MODEL_WEIGHTS = "weights-improvement-109-0.79.hdf5"
+    config.TESTING_MODEL_WEIGHTS = "weights-improvement-119-0.78.hdf5"
     model.start_model_evaluation()
 
 
@@ -49,7 +49,7 @@ def start_training():
     config.TRAINING_DATE_END = "1/1/2018"
     config.VALIDATION_DATE_START = "1/1/2018"
     config.VALIDATION_DATE_END = "2/1/2018"
-    config.TRAINING_EPOCHS = 250
+    config.TRAINING_EPOCHS = 300
     model.start_model_training()
 
 
